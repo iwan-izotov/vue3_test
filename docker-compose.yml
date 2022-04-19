@@ -1,0 +1,43 @@
+version: "3.7"
+
+services:
+
+  nodejs:
+    build:
+      context: ./docker
+      dockerfile: ./nodejs/Dockerfile
+    container_name: vue3_course_nodejs
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - type: bind
+        source: ./app
+        target: /home/node/app
+    tty: true
+    networks:
+      backend:
+        ipv4_address: 18.10.16.2
+
+  # Login:admin Password:password
+  portainer:
+    image: portainer/portainer:latest
+    container_name: vue3_course_portainer
+    restart: always
+    command: --admin-password '$$2y$$05$$arC5e4UbRPxfR68jaFnAAe1aL7C1U03pqfyQh49/9lB9lqFxLfBqS' -H unix:///var/run/docker.sock
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+    networks:
+      backend:
+        ipv4_address: 18.10.16.3
+
+networks:
+  backend:
+    ipam:
+      driver: default
+      config:
+        - subnet: "18.10.16.2/24"
